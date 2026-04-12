@@ -1,13 +1,16 @@
 {
   "name": "shopping-list-dashboard",
   "version": "1.0.0",
+  "homepage": "https://diogocavilha.github.io/lista-compras-gh-pages",
   "description": "Shopping list management app with time-tracking analytics for supermarket trips",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
@@ -22,6 +25,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.2.0",
+    "gh-pages": "^6.3.0",
     "terser": "^5.46.1",
     "typescript": "^5.1.6",
     "vite": "^5.0.0"
