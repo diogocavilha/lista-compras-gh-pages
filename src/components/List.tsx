@@ -153,7 +153,7 @@ function List({
                     </Box>
                 ) : (
                     <ChakraList spacing={0} border="1px" borderColor="gray.200" borderRadius="md" overflow="hidden">
-                        {list.items.map((item: ListItemType, index: number) => (
+                        {list.items.reverse().map((item: ListItemType, index: number) => (
                             <ChakraListItem
                                 key={item.id}
                                 p={3}
