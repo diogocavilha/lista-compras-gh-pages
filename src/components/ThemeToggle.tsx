@@ -4,30 +4,30 @@ import { useEffect } from 'react'
 import * as storageService from '../services/storageService'
 
 function ThemeToggle() {
-  const { colorMode, toggleColorMode } = useColorMode()
+    const { colorMode, toggleColorMode } = useColorMode()
 
-  // Load saved theme on mount
-  useEffect(() => {
-    const savedTheme = storageService.getTheme()
-    if (savedTheme !== colorMode) {
-      toggleColorMode()
+    // Load saved theme on mount
+    useEffect(() => {
+        const savedTheme = storageService.getTheme()
+        if (savedTheme !== colorMode) {
+            toggleColorMode()
+        }
+    }, [])
+
+    const handleToggle = () => {
+        const newTheme = colorMode === 'light' ? 'dark' : 'light'
+        storageService.setTheme(newTheme as 'light' | 'dark')
+        toggleColorMode()
     }
-  }, [])
 
-  const handleToggle = () => {
-    const newTheme = colorMode === 'light' ? 'dark' : 'light'
-    storageService.setTheme(newTheme as 'light' | 'dark')
-    toggleColorMode()
-  }
-
-  return (
-    <IconButton
-      aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
-      icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-      onClick={handleToggle}
-      variant="ghost"
-    />
-  )
+    return (
+        <IconButton
+            aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
+            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+            onClick={handleToggle}
+            variant="ghost"
+        />
+    )
 }
 
 export default ThemeToggle
