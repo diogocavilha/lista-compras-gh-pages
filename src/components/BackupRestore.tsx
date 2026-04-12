@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { VStack, Button, Input, Text, useToast, Card, CardBody, CardHeader, Heading, Divider } from '@chakra-ui/react'
 import * as backupService from '../services/backupService'
+import { DeleteIcon, DownloadIcon } from '@chakra-ui/icons'
 
 interface BackupRestoreProps {
     onRestoreComplete: () => void
@@ -75,16 +76,16 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             {/* Backup Section */}
             <Card w="100%">
                 <CardHeader>
-                    <Heading size="md">Fazer Backup dos Dados</Heading>
+                    <Heading size="md">Fazer backup dos dados</Heading>
                 </CardHeader>
                 <Divider />
                 <CardBody>
                     <VStack spacing={4} align="stretch">
                         <Text fontSize="sm" color="gray.600">
-                            Baixe um backup de todos os seus listas de compras e histórico
+                            Baixe um backup de todas as suas listas de compras e histórico
                         </Text>
-                        <Button colorScheme="blue" onClick={handleExportBackup} w="100%">
-                            Baixar Backup
+                        <Button leftIcon={<DownloadIcon />} borderRadius={100} colorScheme="blue" onClick={handleExportBackup} w="100%">
+                            Baixar backup
                         </Button>
                     </VStack>
                 </CardBody>
@@ -93,7 +94,7 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             {/* Restore Section */}
             <Card w="100%">
                 <CardHeader>
-                    <Heading size="md">Restaurar Dados</Heading>
+                    <Heading size="md">Restaurar dados</Heading>
                 </CardHeader>
                 <Divider />
                 <CardBody>
@@ -116,7 +117,7 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             <Card w="100%" borderColor="red.200" borderWidth="1px">
                 <CardHeader>
                     <Heading size="md" color="red.600">
-                        Zona de Perigo
+                        Atenção
                     </Heading>
                 </CardHeader>
                 <Divider />
@@ -126,16 +127,18 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
                             Limpar todos os dados permanentemente (não pode ser desfeito)
                         </Text>
                         <Button
+                            leftIcon={<DeleteIcon />}
+                            borderRadius={100}
                             colorScheme="red"
                             variant="outline"
                             w="100%"
                             onClick={() => {
                                 const confirm = window.confirm(
-                                    'Isso deletará permanentemente todas as suas listas de compras. Isso não pode ser desfeito. Continuar?'
+                                    'Isso apagará permanentemente todas as suas listas de compras. Isso não pode ser desfeito. Continuar?'
                                 )
                                 if (confirm) {
                                     const confirm2 = window.confirm(
-                                        'Você tem certeza absoluta? Esta ação não pode ser revertida.'
+                                        'Você tem certeza? Esta ação não pode ser revertida.'
                                     )
                                     if (confirm2) {
                                         import('../services/storageService').then(m => m.clearAllData())
@@ -144,7 +147,7 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
                                 }
                             }}
                         >
-                            Limpar Todos os Dados
+                            Apagar tudo
                         </Button>
                     </VStack>
                 </CardBody>

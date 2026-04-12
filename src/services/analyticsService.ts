@@ -111,7 +111,7 @@ export function formatListDate(isoString: string): string {
             date.getFullYear() === today.getFullYear()
 
         const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-                       'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+            'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
 
         const dayStr = date.getDate()
         const monthStr = months[date.getMonth()]

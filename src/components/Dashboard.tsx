@@ -17,7 +17,7 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                 {/* Current Trip */}
                 <Box>
                     <Heading as="h2" size="md" mb={4}>
-                        Viagem Atual
+                        Viagem atual
                     </Heading>
                     {activeList ? (
                         <Card>
@@ -47,11 +47,11 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                     </Heading>
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <Stat>
-                            <StatLabel>Total de Viagens</StatLabel>
+                            <StatLabel>Total de viagens</StatLabel>
                             <StatNumber>{stats.totalTrips}</StatNumber>
                         </Stat>
                         <Stat>
-                            <StatLabel>Duração Média</StatLabel>
+                            <StatLabel>Duração média</StatLabel>
                             <StatNumber>{stats.averageDurationFormatted}</StatNumber>
                         </Stat>
                         <Stat>
@@ -59,7 +59,7 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                             <StatNumber>{stats.totalItemsShipped}</StatNumber>
                         </Stat>
                         <Stat>
-                            <StatLabel>Média de Itens/Viagem</StatLabel>
+                            <StatLabel>Média de itens/viagem</StatLabel>
                             <StatNumber>{stats.totalTrips > 0 ? Math.round(stats.totalItemsShipped / stats.totalTrips) : 0}</StatNumber>
                         </Stat>
                     </SimpleGrid>
@@ -68,7 +68,7 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                 {/* Recent Trips */}
                 <Box>
                     <Heading as="h2" size="md" mb={4}>
-                        Viagens Recentes
+                        Viagens recentes
                     </Heading>
                     {recentTrips.length === 0 ? (
                         <Text color="gray.500">Nenhuma viagem concluída ainda</Text>
@@ -82,7 +82,7 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                                                 <strong>{formatListDate(trip.createdAt)}</strong>
                                             </Text>
                                             <Text fontSize="sm" color="gray.600">
-                                                Duration: {formatDuration(trip.durationMs)} • {trip.itemCount} items
+                                                Duração: {formatDuration(trip.durationMs)} • {trip.itemCount} itens
                                             </Text>
                                         </VStack>
                                     </CardBody>

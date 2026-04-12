@@ -55,7 +55,7 @@ All 55+ discoverable strings catalogued by component:
 - "List name" → "Nome da lista"
 - "List name is required" → "Nome da lista é obrigatório"
 - "Create" → "Criar"
-- "Add Item" → "Adicionar Item"
+- "Add Item" → "Adicionar"
 - "Item name" → "Nome do item"
 - "Item name is required" → "Nome do item é obrigatório"
 - "Price (optional)" → "Preço (opcional)"

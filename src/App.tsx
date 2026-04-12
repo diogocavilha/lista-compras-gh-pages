@@ -153,7 +153,7 @@ function App() {
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                     <TabList>
                         <Tab>Compras</Tab>
-                        <Tab>Dashboard</Tab>
+                        <Tab>Painel</Tab>
                         <Tab>Configurações</Tab>
                     </TabList>
                     <ThemeToggle />

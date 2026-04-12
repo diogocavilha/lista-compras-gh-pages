@@ -10,10 +10,12 @@ import {
     useToast,
     List as ChakraList,
     ListItem as ChakraListItem,
+    IconButton,
 } from '@chakra-ui/react'
 import { ListItem as ListItemType, ShoppingList } from '../types/index'
 import { formatListDate } from '../services/analyticsService'
 import ListItem from './ListItem'
+import { AddIcon } from '@chakra-ui/icons'
 
 interface ListProps {
     list: ShoppingList | null
@@ -91,13 +93,13 @@ function List({
             <Box as="main" p={4} maxW="600px" mx="auto">
                 <VStack spacing={6} align="center" py={8}>
                     <Heading as="h1" size="lg">
-                        Nenhuma lista de compras ativa
+                        Nenhuma lista encontrada
                     </Heading>
                     <Text color="gray.500">
                         Você pode criar uma nova lista quando estiver pronto
                     </Text>
-                    <Button colorScheme="blue" onClick={onCreateNewList} size="lg">
-                        Criar Nova Lista de Compras
+                    <Button borderRadius={100} colorScheme="blue" onClick={onCreateNewList} size="lg">
+                        Criar
                     </Button>
                 </VStack>
             </Box>
@@ -112,7 +114,7 @@ function List({
                 {/* List Metadata */}
                 <Box>
                     <Heading as="h1" size="lg" mb={2}>
-                        Lista de Compras
+                        Lista de compras
                     </Heading>
                     <Text fontSize="sm" color="gray.500">
                         Criada: {formatListDate(list.createdAt)}
@@ -132,9 +134,16 @@ function List({
                         size="md"
                         maxLength={200}
                     />
-                    <Button colorScheme="blue" onClick={handleAddItem} type="button">
-                        Adicionar Item
-                    </Button>
+                    <IconButton
+                        onClick={handleAddItem}
+                        isRound={true}
+                        variant='solid'
+                        colorScheme='blue'
+                        aria-label='Criar'
+                        fontSize='20px'
+                        type="button"
+                        icon={<AddIcon />}
+                    />
                 </HStack>
 
                 {/* Items List */}
