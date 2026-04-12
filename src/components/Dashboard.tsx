@@ -17,49 +17,49 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                 {/* Current Trip */}
                 <Box>
                     <Heading as="h2" size="md" mb={4}>
-                        Current Trip
+                        Viagem Atual
                     </Heading>
                     {activeList ? (
                         <Card>
                             <CardBody>
                                 <VStack align="start" spacing={2}>
                                     <Text>
-                                        <strong>Started:</strong> {formatListDate(activeList.createdAt)}
+                                        <strong>Início:</strong> {formatListDate(activeList.createdAt)}
                                     </Text>
                                     <Text>
-                                        <strong>Items:</strong> {activeList.items.length}
+                                        <strong>Itens:</strong> {activeList.items.length}
                                     </Text>
                                     <Text>
-                                        <strong>Completed:</strong> {calculateCompletionPercent(activeList.items)}%
+                                        <strong>Concluídos:</strong> {calculateCompletionPercent(activeList.items)}%
                                     </Text>
                                 </VStack>
                             </CardBody>
                         </Card>
                     ) : (
-                        <Text color="gray.500">No active trip</Text>
+                        <Text color="gray.500">Nenhuma viagem ativa</Text>
                     )}
                 </Box>
 
                 {/* Statistics */}
                 <Box>
                     <Heading as="h2" size="md" mb={4}>
-                        Statistics
+                        Estatísticas
                     </Heading>
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <Stat>
-                            <StatLabel>Total Trips</StatLabel>
+                            <StatLabel>Total de Viagens</StatLabel>
                             <StatNumber>{stats.totalTrips}</StatNumber>
                         </Stat>
                         <Stat>
-                            <StatLabel>Average Duration</StatLabel>
+                            <StatLabel>Duração Média</StatLabel>
                             <StatNumber>{stats.averageDurationFormatted}</StatNumber>
                         </Stat>
                         <Stat>
-                            <StatLabel>Total Items</StatLabel>
+                            <StatLabel>Total de Itens</StatLabel>
                             <StatNumber>{stats.totalItemsShipped}</StatNumber>
                         </Stat>
                         <Stat>
-                            <StatLabel>Avg Items/Trip</StatLabel>
+                            <StatLabel>Média de Itens/Viagem</StatLabel>
                             <StatNumber>{stats.totalTrips > 0 ? Math.round(stats.totalItemsShipped / stats.totalTrips) : 0}</StatNumber>
                         </Stat>
                     </SimpleGrid>
@@ -68,10 +68,10 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                 {/* Recent Trips */}
                 <Box>
                     <Heading as="h2" size="md" mb={4}>
-                        Recent Trips
+                        Viagens Recentes
                     </Heading>
                     {recentTrips.length === 0 ? (
-                        <Text color="gray.500">No completed trips yet</Text>
+                        <Text color="gray.500">Nenhuma viagem concluída ainda</Text>
                     ) : (
                         <VStack spacing={2} align="stretch">
                             {recentTrips.map(trip => (

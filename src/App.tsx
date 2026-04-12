@@ -47,7 +47,7 @@ function App() {
         setActiveList(newList)
         storageService.setActiveList(newList)
         toast({
-            title: 'New list created',
+            title: 'Lista criada com sucesso',
             status: 'success',
             duration: 2000,
             isClosable: true,
@@ -127,8 +127,8 @@ function App() {
 
         const formattedDuration = analyticsService.formatDuration(durationMs)
         toast({
-            title: 'List complete!',
-            description: `Shopping trip: ${formattedDuration}`,
+            title: 'Lista concluída!',
+            description: `Viagem de compras: ${formattedDuration}`,
             status: 'success',
             duration: 3000,
             isClosable: true,
@@ -152,9 +152,9 @@ function App() {
             <Tabs variant="soft-rounded" colorScheme="blue" p={4}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                     <TabList>
-                        <Tab>Shopping</Tab>
+                        <Tab>Compras</Tab>
                         <Tab>Dashboard</Tab>
-                        <Tab>Settings</Tab>
+                        <Tab>Configurações</Tab>
                     </TabList>
                     <ThemeToggle />
                 </Box>

@@ -15,13 +15,13 @@ export function calculateListDuration(startTime: string, endTime: string): numbe
 
 /**
  * Format duration in milliseconds to human-readable string
- * Examples: "30 seconds", "15 minutes", "1 hour 20 minutes"
+ * Examples: "30 segundos", "15 minutos", "1 hora 20 minutos"
  */
 export function formatDuration(durationMs: number): string {
     const totalSeconds = Math.floor(durationMs / 1000)
 
     if (totalSeconds < 60) {
-        return `${totalSeconds} second${totalSeconds !== 1 ? 's' : ''}`
+        return `${totalSeconds} segundo${totalSeconds !== 1 ? 's' : ''}`
     }
 
     const minutes = Math.floor(totalSeconds / 60)
@@ -29,14 +29,14 @@ export function formatDuration(durationMs: number): string {
     const remainingMinutes = minutes % 60
 
     if (hours === 0) {
-        return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+        return `${minutes} minuto${minutes !== 1 ? 's' : ''}`
     }
 
     if (remainingMinutes === 0) {
-        return `${hours} hour${hours !== 1 ? 's' : ''}`
+        return `${hours} hora${hours !== 1 ? 's' : ''}`
     }
 
-    return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`
+    return `${hours} hora${hours !== 1 ? 's' : ''} ${remainingMinutes} minuto${remainingMinutes !== 1 ? 's' : ''}`
 }
 
 /**
@@ -98,7 +98,7 @@ export function getDashboardStats(completedLists: CompletedList[]): DashboardSta
 }
 
 /**
- * Format a date as "Month Day, Time AM/PM" or "Today, Time AM/PM"
+ * Format a date as "DD de mês de YYYY, HH:MM" or "Hoje, HH:MM"
  */
 export function formatListDate(isoString: string): string {
     try {
@@ -110,43 +110,37 @@ export function formatListDate(isoString: string): string {
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear()
 
-        const timeFormatter = new Intl.DateTimeFormat('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        })
+        const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                       'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
 
-        const dateFormatter = new Intl.DateTimeFormat('en-US', {
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        })
+        const dayStr = date.getDate()
+        const monthStr = months[date.getMonth()]
+        const yearStr = date.getFullYear()
+        const hoursStr = String(date.getHours()).padStart(2, '0')
+        const minutesStr = String(date.getMinutes()).padStart(2, '0')
+        const timeStr = `${hoursStr}:${minutesStr}`
 
         if (isToday) {
-            return `Today, ${timeFormatter.format(date)}`
+            return `Hoje, ${timeStr}`
         }
 
-        return dateFormatter.format(date)
+        return `${dayStr} de ${monthStr} de ${yearStr}, ${timeStr}`
     } catch {
-        return 'Unknown date'
+        return 'Data desconhecida'
     }
 }
 
 /**
- * Format time as HH:MM AM/PM
+ * Format time as HH:MM (24-hour format)
  */
 export function formatTime(isoString: string | null): string {
     if (!isoString) return ''
 
     try {
         const date = new Date(isoString)
-        return new Intl.DateTimeFormat('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        }).format(date)
+        const hoursStr = String(date.getHours()).padStart(2, '0')
+        const minutesStr = String(date.getMinutes()).padStart(2, '0')
+        return `${hoursStr}:${minutesStr}`
     } catch {
         return ''
     }

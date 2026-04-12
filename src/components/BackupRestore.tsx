@@ -15,16 +15,16 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             const data = backupService.exportBackup()
             backupService.downloadBackupFile(data)
             toast({
-                title: 'Success',
-                description: 'Backup downloaded',
+                title: 'Sucesso',
+                description: 'Backup baixado',
                 status: 'success',
                 duration: 2000,
                 isClosable: true,
             })
         } catch (error) {
             toast({
-                title: 'Error',
-                description: 'Failed to export backup',
+                title: 'Erro',
+                description: 'Falha ao exportar backup',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -40,14 +40,14 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
 
         try {
             const data = await backupService.parseBackupFile(file)
-            const confirm = window.confirm('This will replace your current data. Continue?')
+            const confirm = window.confirm('Isso substituirá seus dados atuais. Continuar?')
 
             if (confirm) {
                 backupService.restoreBackup(data)
                 onRestoreComplete()
                 toast({
-                    title: 'Success',
-                    description: 'Data restored',
+                    title: 'Sucesso',
+                    description: 'Dados restaurados',
                     status: 'success',
                     duration: 2000,
                     isClosable: true,
@@ -55,8 +55,8 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             }
         } catch (error) {
             toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'Failed to restore backup',
+                title: 'Erro',
+                description: error instanceof Error ? error.message : 'Falha ao restaurar backup',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -75,16 +75,16 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             {/* Backup Section */}
             <Card w="100%">
                 <CardHeader>
-                    <Heading size="md">Backup Data</Heading>
+                    <Heading size="md">Fazer Backup dos Dados</Heading>
                 </CardHeader>
                 <Divider />
                 <CardBody>
                     <VStack spacing={4} align="stretch">
                         <Text fontSize="sm" color="gray.600">
-                            Download a backup of all your shopping lists and history
+                            Baixe um backup de todos os seus listas de compras e histórico
                         </Text>
                         <Button colorScheme="blue" onClick={handleExportBackup} w="100%">
-                            Download Backup
+                            Baixar Backup
                         </Button>
                     </VStack>
                 </CardBody>
@@ -93,13 +93,13 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             {/* Restore Section */}
             <Card w="100%">
                 <CardHeader>
-                    <Heading size="md">Restore Data</Heading>
+                    <Heading size="md">Restaurar Dados</Heading>
                 </CardHeader>
                 <Divider />
                 <CardBody>
                     <VStack spacing={4} align="stretch">
                         <Text fontSize="sm" color="gray.600">
-                            Restore your shopping lists from a backup file
+                            Restaure suas listas de compras de um arquivo de backup
                         </Text>
                         <Input
                             type="file"
@@ -116,14 +116,14 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
             <Card w="100%" borderColor="red.200" borderWidth="1px">
                 <CardHeader>
                     <Heading size="md" color="red.600">
-                        Danger Zone
+                        Zona de Perigo
                     </Heading>
                 </CardHeader>
                 <Divider />
                 <CardBody>
                     <VStack spacing={4} align="stretch">
                         <Text fontSize="sm" color="gray.600">
-                            Clear all data permanently (cannot be undone)
+                            Limpar todos os dados permanentemente (não pode ser desfeito)
                         </Text>
                         <Button
                             colorScheme="red"
@@ -131,11 +131,11 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
                             w="100%"
                             onClick={() => {
                                 const confirm = window.confirm(
-                                    'This will permanently delete all your shopping lists. This cannot be undone. Continue?'
+                                    'Isso deletará permanentemente todas as suas listas de compras. Isso não pode ser desfeito. Continuar?'
                                 )
                                 if (confirm) {
                                     const confirm2 = window.confirm(
-                                        'Are you absolutely sure? This action cannot be reversed.'
+                                        'Você tem certeza absoluta? Esta ação não pode ser revertida.'
                                     )
                                     if (confirm2) {
                                         import('../services/storageService').then(m => m.clearAllData())
@@ -144,7 +144,7 @@ function BackupRestore({ onRestoreComplete }: BackupRestoreProps) {
                                 }
                             }}
                         >
-                            Clear All Data
+                            Limpar Todos os Dados
                         </Button>
                     </VStack>
                 </CardBody>

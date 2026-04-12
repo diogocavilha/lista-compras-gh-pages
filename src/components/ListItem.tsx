@@ -13,11 +13,11 @@ function ListItem({ item, onToggleItem, onDeleteItem }: ListItemProps) {
     const toast = useToast()
 
     const handleDelete = () => {
-        const confirmDelete = window.confirm('Remove this item?')
+        const confirmDelete = window.confirm('Remover este item?')
         if (confirmDelete) {
             onDeleteItem(item.id)
             toast({
-                title: 'Item removed',
+                title: 'Item removido',
                 status: 'info',
                 duration: 2000,
                 isClosable: true,

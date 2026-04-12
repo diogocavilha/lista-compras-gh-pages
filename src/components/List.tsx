@@ -36,8 +36,8 @@ function List({
     const handleAddItem = () => {
         if (!inputValue.trim()) {
             toast({
-                title: 'Error',
-                description: 'Please enter a product name',
+                title: 'Erro',
+                description: 'Por favor, insira um nome do produto',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -47,8 +47,8 @@ function List({
 
         if (inputValue.length > 200) {
             toast({
-                title: 'Error',
-                description: 'Product name too long (max 200 characters)',
+                title: 'Erro',
+                description: 'Nome do produto muito longo (máximo 200 caracteres)',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -59,8 +59,8 @@ function List({
         // Check for duplicates
         if (list?.items.some(item => item.title.toLowerCase() === inputValue.trim().toLowerCase())) {
             toast({
-                title: 'Error',
-                description: 'This item is already in your list',
+                title: 'Erro',
+                description: 'Este item já está em sua lista',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -71,8 +71,8 @@ function List({
         onAddItem(inputValue.trim())
         setInputValue('')
         toast({
-            title: 'Success',
-            description: 'Item added',
+            title: 'Sucesso',
+            description: 'Item adicionado',
             status: 'success',
             duration: 2000,
             isClosable: true,
@@ -91,13 +91,13 @@ function List({
             <Box as="main" p={4} maxW="600px" mx="auto">
                 <VStack spacing={6} align="center" py={8}>
                     <Heading as="h1" size="lg">
-                        No active shopping list
+                        Nenhuma lista de compras ativa
                     </Heading>
                     <Text color="gray.500">
-                        You can create a new list when ready
+                        Você pode criar uma nova lista quando estiver pronto
                     </Text>
                     <Button colorScheme="blue" onClick={onCreateNewList} size="lg">
-                        Create New Shopping List
+                        Criar Nova Lista de Compras
                     </Button>
                 </VStack>
             </Box>
@@ -112,20 +112,20 @@ function List({
                 {/* List Metadata */}
                 <Box>
                     <Heading as="h1" size="lg" mb={2}>
-                        Shopping List
+                        Lista de Compras
                     </Heading>
                     <Text fontSize="sm" color="gray.500">
-                        Created: {formatListDate(list.createdAt)}
+                        Criada: {formatListDate(list.createdAt)}
                     </Text>
                     <Text fontSize="sm" color="gray.500">
-                        {list.items.length} items, {completedCount} completed
+                        {list.items.length} itens, {completedCount} concluídos
                     </Text>
                 </Box>
 
                 {/* Add Item Form */}
                 <HStack as="form" spacing={2} onSubmit={e => { e.preventDefault(); handleAddItem() }}>
                     <Input
-                        placeholder="Enter product name..."
+                        placeholder="Insira o nome do produto..."
                         value={inputValue}
                         onChange={e => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -133,14 +133,14 @@ function List({
                         maxLength={200}
                     />
                     <Button colorScheme="blue" onClick={handleAddItem} type="button">
-                        Add Item
+                        Adicionar Item
                     </Button>
                 </HStack>
 
                 {/* Items List */}
                 {list.items.length === 0 ? (
                     <Box py={8} textAlign="center">
-                        <Text color="gray.500">No items yet. Add your first item above!</Text>
+                        <Text color="gray.500">Nenhum item ainda. Adicione seu primeiro item acima!</Text>
                     </Box>
                 ) : (
                     <ChakraList spacing={0} border="1px" borderColor="gray.200" borderRadius="md" overflow="hidden">
