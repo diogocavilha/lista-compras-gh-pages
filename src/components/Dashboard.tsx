@@ -1,4 +1,10 @@
-import { Box, Heading, VStack, Text, Card, CardBody, SimpleGrid, Stat, StatLabel, StatNumber } from '@chakra-ui/react'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
 import { ShoppingList, CompletedList } from '../types/index'
 import { calculateCompletionPercent, getRecentTrips, getDashboardStats, formatListDate, formatDuration } from '../services/analyticsService'
 
@@ -7,92 +13,104 @@ interface DashboardProps {
     completedLists: CompletedList[]
 }
 
+function StatCard({ label, value }: { label: string; value: string | number }) {
+    return (
+        <Card variant="outlined">
+            <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                <Typography variant="caption" color="text.secondary" component="div">
+                    {label}
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    {value}
+                </Typography>
+            </CardContent>
+        </Card>
+    )
+}
+
 function Dashboard({ activeList, completedLists }: DashboardProps) {
     const stats = getDashboardStats(completedLists)
     const recentTrips = getRecentTrips(completedLists, 5)
 
     return (
-        <Box maxW="1000px" mx="auto">
-            <VStack spacing={8} align="stretch">
+        <Container maxWidth="sm" sx={{ pt: 2, pb: 2 }}>
+            <Stack spacing={4}>
                 {/* Current Trip */}
                 <Box>
-                    <Heading as="h2" size="md" mb={4}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
                         Viagem atual
-                    </Heading>
+                    </Typography>
                     {activeList ? (
-                        <Card>
-                            <CardBody>
-                                <VStack align="start" spacing={2}>
-                                    <Text>
+                        <Card variant="outlined">
+                            <CardContent>
+                                <Stack spacing={0.5}>
+                                    <Typography variant="body2">
                                         <strong>Início:</strong> {formatListDate(activeList.createdAt)}
-                                    </Text>
-                                    <Text>
+                                    </Typography>
+                                    <Typography variant="body2">
                                         <strong>Itens:</strong> {activeList.items.length}
-                                    </Text>
-                                    <Text>
+                                    </Typography>
+                                    <Typography variant="body2">
                                         <strong>Concluídos:</strong> {calculateCompletionPercent(activeList.items)}%
-                                    </Text>
-                                </VStack>
-                            </CardBody>
+                                    </Typography>
+                                </Stack>
+                            </CardContent>
                         </Card>
                     ) : (
-                        <Text color="gray.500">Nenhuma viagem ativa</Text>
+                        <Typography color="text.secondary" variant="body2">Nenhuma viagem ativa</Typography>
                     )}
                 </Box>
 
                 {/* Statistics */}
                 <Box>
-                    <Heading as="h2" size="md" mb={4}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
                         Estatísticas
-                    </Heading>
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                        <Stat>
-                            <StatLabel>Total de viagens</StatLabel>
-                            <StatNumber>{stats.totalTrips}</StatNumber>
-                        </Stat>
-                        <Stat>
-                            <StatLabel>Duração média</StatLabel>
-                            <StatNumber>{stats.averageDurationFormatted}</StatNumber>
-                        </Stat>
-                        <Stat>
-                            <StatLabel>Total de Itens</StatLabel>
-                            <StatNumber>{stats.totalItemsShipped}</StatNumber>
-                        </Stat>
-                        <Stat>
-                            <StatLabel>Média de itens/viagem</StatLabel>
-                            <StatNumber>{stats.totalTrips > 0 ? Math.round(stats.totalItemsShipped / stats.totalTrips) : 0}</StatNumber>
-                        </Stat>
-                    </SimpleGrid>
+                    </Typography>
+                    <Grid container spacing={1.5}>
+                        <Grid size={6}>
+                            <StatCard label="Total de viagens" value={stats.totalTrips} />
+                        </Grid>
+                        <Grid size={6}>
+                            <StatCard label="Duração média" value={stats.averageDurationFormatted} />
+                        </Grid>
+                        <Grid size={6}>
+                            <StatCard label="Total de itens" value={stats.totalItemsShipped} />
+                        </Grid>
+                        <Grid size={6}>
+                            <StatCard
+                                label="Média itens/viagem"
+                                value={stats.totalTrips > 0 ? Math.round(stats.totalItemsShipped / stats.totalTrips) : 0}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
 
                 {/* Recent Trips */}
                 <Box>
-                    <Heading as="h2" size="md" mb={4}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
                         Viagens recentes
-                    </Heading>
+                    </Typography>
                     {recentTrips.length === 0 ? (
-                        <Text color="gray.500">Nenhuma viagem concluída ainda</Text>
+                        <Typography color="text.secondary" variant="body2">Nenhuma viagem concluída ainda</Typography>
                     ) : (
-                        <VStack spacing={2} align="stretch">
+                        <Stack spacing={1}>
                             {recentTrips.map(trip => (
-                                <Card key={trip.id}>
-                                    <CardBody py={2}>
-                                        <VStack align="start" spacing={1}>
-                                            <Text fontSize="sm">
-                                                <strong>{formatListDate(trip.createdAt)}</strong>
-                                            </Text>
-                                            <Text fontSize="sm" color="gray.600">
-                                                Duração: {formatDuration(trip.durationMs)} • {trip.itemCount} itens
-                                            </Text>
-                                        </VStack>
-                                    </CardBody>
+                                <Card key={trip.id} variant="outlined">
+                                    <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {formatListDate(trip.createdAt)}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Duração: {formatDuration(trip.durationMs)} · {trip.itemCount} itens
+                                        </Typography>
+                                    </CardContent>
                                 </Card>
                             ))}
-                        </VStack>
+                        </Stack>
                     )}
                 </Box>
-            </VStack>
-        </Box>
+            </Stack>
+        </Container>
     )
 }
 

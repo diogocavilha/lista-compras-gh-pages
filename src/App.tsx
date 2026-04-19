@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Box, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from '@chakra-ui/react'
+import Box from '@mui/material/Box'
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
+import Paper from '@mui/material/Paper'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import BarChartIcon from '@mui/icons-material/BarChart'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { ShoppingList, ListItem as ListItemType, CompletedList } from './types/index'
 import * as storageService from './services/storageService'
 import * as analyticsService from './services/analyticsService'
@@ -7,56 +15,72 @@ import List from './components/List'
 import Dashboard from './components/Dashboard'
 import ThemeToggle from './components/ThemeToggle'
 import BackupRestore from './components/BackupRestore'
+import ConfirmDialog from './components/ConfirmDialog'
+
+interface SnackbarState {
+    message: string
+    severity: 'success' | 'error' | 'info' | 'warning'
+}
+
+interface ConfirmDialogState {
+    title: string
+    message: string
+    onConfirm: () => void
+}
+
+const BOTTOM_NAV_HEIGHT = 56
 
 function App() {
+    const [activeTab, setActiveTab] = useState(0)
     const [activeList, setActiveList] = useState<ShoppingList | null>(null)
     const [completedLists, setCompletedLists] = useState<CompletedList[]>([])
-    const toast = useToast()
+    const [snackbar, setSnackbar] = useState<SnackbarState | null>(null)
+    const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
-    // Load data from localStorage on mount
     useEffect(() => {
-        const list = storageService.getActiveList()
-        const lists = storageService.getCompletedLists()
-        setActiveList(list)
-        setCompletedLists(lists)
+        setActiveList(storageService.getActiveList())
+        setCompletedLists(storageService.getCompletedLists())
     }, [])
 
-    // Simple UUID generator (crypto.randomUUID fallback)
-    const generateUUID = (): string => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const showSnackbar = (message: string, severity: SnackbarState['severity'] = 'success') => {
+        setSnackbar({ message, severity })
+    }
+
+    const generateUUID = (): string =>
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
             const r = Math.random() * 16 | 0
             const v = c === 'x' ? r : (r & 0x3 | 0x8)
             return v.toString(16)
         })
-    }
 
     const handleCreateNewList = () => {
         if (activeList) {
-            const confirm = window.confirm(
-                'You have an active list. Creating a new list will replace it. Continue?'
-            )
-            if (!confirm) return
+            setConfirmDialog({
+                title: 'Substituir lista',
+                message: 'Você tem uma lista ativa. Criar uma nova lista irá substituí-la. Continuar?',
+                onConfirm: () => {
+                    setConfirmDialog(null)
+                    createNewList()
+                },
+            })
+            return
         }
+        createNewList()
+    }
 
+    const createNewList = () => {
         const newList: ShoppingList = {
             createdAt: new Date().toISOString(),
             items: [],
             status: 'active',
         }
-
         setActiveList(newList)
         storageService.setActiveList(newList)
-        toast({
-            title: 'Lista criada com sucesso',
-            status: 'success',
-            duration: 2000,
-            isClosable: true,
-        })
+        showSnackbar('Lista criada com sucesso')
     }
 
     const handleAddItem = (title: string) => {
         if (!activeList) return
-
         const newItem: ListItemType = {
             id: generateUUID(),
             title,
@@ -64,33 +88,19 @@ function App() {
             completedAt: null,
             createdAt: new Date().toISOString(),
         }
-
-        const updatedList = {
-            ...activeList,
-            items: [...activeList.items, newItem],
-        }
-
+        const updatedList = { ...activeList, items: [...activeList.items, newItem] }
         setActiveList(updatedList)
         storageService.setActiveList(updatedList)
     }
 
     const handleToggleItem = (itemId: string) => {
         if (!activeList) return
-
-        const updatedItems = activeList.items.map(item => {
-            if (item.id === itemId) {
-                return {
-                    ...item,
-                    completed: !item.completed,
-                    completedAt: !item.completed ? new Date().toISOString() : null,
-                }
-            }
-            return item
-        })
-
+        const updatedItems = activeList.items.map(item =>
+            item.id === itemId
+                ? { ...item, completed: !item.completed, completedAt: !item.completed ? new Date().toISOString() : null }
+                : item
+        )
         const updatedList = { ...activeList, items: updatedItems }
-
-        // Check if all items are completed
         const allCompleted = updatedItems.every(item => item.completed)
         if (allCompleted && updatedItems.length > 0) {
             archiveCompletedList(updatedList)
@@ -101,91 +111,96 @@ function App() {
     }
 
     const archiveCompletedList = (list: ShoppingList) => {
-        const lastItemCompletedAt = list.items
+        const lastItem = list.items
             .filter(item => item.completedAt)
             .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0]
+        if (!lastItem) return
 
-        if (!lastItemCompletedAt) return
-
-        const durationMs = analyticsService.calculateListDuration(
-            list.createdAt,
-            lastItemCompletedAt.completedAt!
-        )
-
+        const durationMs = analyticsService.calculateListDuration(list.createdAt, lastItem.completedAt!)
         const completedList: CompletedList = {
             id: generateUUID(),
             createdAt: list.createdAt,
-            completedAt: lastItemCompletedAt.completedAt!,
+            completedAt: lastItem.completedAt!,
             durationMs,
             itemCount: list.items.length,
         }
-
-        setCompletedLists([...completedLists, completedList])
+        setCompletedLists(prev => [...prev, completedList])
         storageService.addCompletedList(completedList)
         storageService.setActiveList(null)
         setActiveList(null)
-
-        const formattedDuration = analyticsService.formatDuration(durationMs)
-        toast({
-            title: 'Lista concluída!',
-            description: `Viagem de compras: ${formattedDuration}`,
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-        })
+        showSnackbar(`Lista concluída! Viagem: ${analyticsService.formatDuration(durationMs)}`)
     }
 
     const handleDeleteItem = (itemId: string) => {
         if (!activeList) return
-
-        const updatedList = {
-            ...activeList,
-            items: activeList.items.filter(item => item.id !== itemId),
-        }
-
+        const updatedList = { ...activeList, items: activeList.items.filter(item => item.id !== itemId) }
         setActiveList(updatedList)
         storageService.setActiveList(updatedList)
+        showSnackbar('Item removido', 'info')
     }
 
     return (
-        <Box minH="100vh" bg="white" _dark={{ bg: 'gray.900' }}>
-            <Tabs variant="soft-rounded" colorScheme="blue" p={4}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-                    <TabList>
-                        <Tab>Compras</Tab>
-                        <Tab>Painel</Tab>
-                        <Tab>Configurações</Tab>
-                    </TabList>
-                    <ThemeToggle />
-                </Box>
+        <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+            {/* Top bar with theme toggle */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+                <ThemeToggle />
+            </Box>
 
-                <TabPanels>
-                    <TabPanel>
-                        <List
-                            list={activeList}
-                            onAddItem={handleAddItem}
-                            onToggleItem={handleToggleItem}
-                            onDeleteItem={handleDeleteItem}
-                            onCreateNewList={handleCreateNewList}
-                        />
-                    </TabPanel>
+            {/* Tab content — fills remaining height above bottom nav */}
+            <Box sx={{ flex: 1, overflow: 'auto', pb: `${BOTTOM_NAV_HEIGHT}px` }}>
+                {activeTab === 0 && (
+                    <List
+                        list={activeList}
+                        onAddItem={handleAddItem}
+                        onToggleItem={handleToggleItem}
+                        onDeleteItem={handleDeleteItem}
+                        onCreateNewList={handleCreateNewList}
+                        showSnackbar={showSnackbar}
+                    />
+                )}
+                {activeTab === 1 && (
+                    <Dashboard activeList={activeList} completedLists={completedLists} />
+                )}
+                {activeTab === 2 && (
+                    <BackupRestore
+                        onRestoreComplete={() => {
+                            setActiveList(storageService.getActiveList())
+                            setCompletedLists(storageService.getCompletedLists())
+                        }}
+                        showSnackbar={showSnackbar}
+                    />
+                )}
+            </Box>
 
-                    <TabPanel>
-                        <Dashboard activeList={activeList} completedLists={completedLists} />
-                    </TabPanel>
+            {/* Bottom navigation */}
+            <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }} elevation={3}>
+                <BottomNavigation value={activeTab} onChange={(_, v) => setActiveTab(v)}>
+                    <BottomNavigationAction label="Compras" icon={<ShoppingCartIcon />} />
+                    <BottomNavigationAction label="Painel" icon={<BarChartIcon />} />
+                    <BottomNavigationAction label="Configurações" icon={<SettingsIcon />} />
+                </BottomNavigation>
+            </Paper>
 
-                    <TabPanel>
-                        <BackupRestore
-                            onRestoreComplete={() => {
-                                const list = storageService.getActiveList()
-                                const lists = storageService.getCompletedLists()
-                                setActiveList(list)
-                                setCompletedLists(lists)
-                            }}
-                        />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+            {/* Snackbar */}
+            <Snackbar
+                open={snackbar !== null}
+                autoHideDuration={2500}
+                onClose={() => setSnackbar(null)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert severity={snackbar?.severity ?? 'success'} onClose={() => setSnackbar(null)} sx={{ width: '100%' }}>
+                    {snackbar?.message}
+                </Alert>
+            </Snackbar>
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog
+                open={confirmDialog !== null}
+                title={confirmDialog?.title ?? ''}
+                message={confirmDialog?.message ?? ''}
+                onConfirm={confirmDialog?.onConfirm ?? (() => {})}
+                onCancel={() => setConfirmDialog(null)}
+            />
         </Box>
     )
 }
