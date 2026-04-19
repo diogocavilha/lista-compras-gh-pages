@@ -119,6 +119,10 @@ function App() {
             .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0]
         if (!lastItem) return
 
+        const purchasedItems = list.items
+            .filter(item => item.completed && !(item.deleted ?? false))
+            .map(item => item.title)
+
         const durationMs = analyticsService.calculateListDuration(list.createdAt, lastItem.completedAt!)
         const completedList: CompletedList = {
             id: generateUUID(),
@@ -126,6 +130,7 @@ function App() {
             completedAt: lastItem.completedAt!,
             durationMs,
             itemCount: list.items.length,
+            purchasedItems,
         }
         setCompletedLists(prev => [...prev, completedList])
         storageService.addCompletedList(completedList)

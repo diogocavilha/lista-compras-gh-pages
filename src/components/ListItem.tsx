@@ -127,7 +127,7 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, swipea
                 elevation={1}
                 sx={{
                     borderRadius: 2,
-                    bgcolor: item.completed ? 'success.light' : 'background.paper',
+                    bgcolor: item.deleted ? 'error.light' : item.completed ? 'success.light' : 'background.paper',
                     userSelect: 'none',
                     touchAction: swipeable ? 'pan-y' : 'auto',
                 }}

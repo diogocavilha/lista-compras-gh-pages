@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -7,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { ShoppingList, CompletedList } from '../types/index'
 import { calculateCompletionPercent, getRecentTrips, getDashboardStats, formatListDate, formatDuration } from '../services/analyticsService'
+import TripDetailDialog from './TripDetailDialog'
 
 interface DashboardProps {
     activeList: ShoppingList | null
@@ -29,10 +31,12 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 function Dashboard({ activeList, completedLists }: DashboardProps) {
+    const [selectedTrip, setSelectedTrip] = useState<CompletedList | null>(null)
     const stats = getDashboardStats(completedLists)
     const recentTrips = getRecentTrips(completedLists, 5)
 
     return (
+        <>
         <Container maxWidth="sm" sx={{ pt: 2, pb: 2 }}>
             <Stack spacing={4}>
                 {/* Current Trip */}
@@ -95,7 +99,12 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                     ) : (
                         <Stack spacing={1}>
                             {recentTrips.map(trip => (
-                                <Card key={trip.id} variant="outlined">
+                                <Card
+                                    key={trip.id}
+                                    variant="outlined"
+                                    onClick={() => setSelectedTrip(trip)}
+                                    sx={{ cursor: 'pointer' }}
+                                >
                                     <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                                             {formatListDate(trip.createdAt)}
@@ -111,6 +120,9 @@ function Dashboard({ activeList, completedLists }: DashboardProps) {
                 </Box>
             </Stack>
         </Container>
+
+        <TripDetailDialog trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
+        </>
     )
 }
 

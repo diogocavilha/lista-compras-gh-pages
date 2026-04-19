@@ -205,7 +205,7 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onC
                         Excluídos
                     </Typography>
                     {deletedItems.map((item: ListItemType) => (
-                        <Box key={item.id} sx={{ bgcolor: 'error.light', borderRadius: 2, mb: 1 }}>
+                        <Box key={item.id} sx={{ borderRadius: 2, mb: 1 }}>
                             <ListItem
                                 item={item}
                                 index={-1}

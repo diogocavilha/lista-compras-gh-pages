@@ -22,6 +22,7 @@ export interface CompletedList {
     completedAt: string;  // ISO 8601, when last item was checked
     durationMs: number;  // Duration in milliseconds
     itemCount: number;  // Total items in list
+    purchasedItems?: string[];  // titles of completed items at archive time; absent for old trips
 }
 
 export interface StorageSchema {
