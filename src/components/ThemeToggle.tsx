@@ -1,32 +1,19 @@
-import { IconButton, useColorMode } from '@chakra-ui/react'
-import { MoonIcon, SunIcon } from '@chakra-ui/icons'
-import { useEffect } from 'react'
-import * as storageService from '../services/storageService'
+import IconButton from '@mui/material/IconButton'
+import Brightness4Icon from '@mui/icons-material/Brightness4'
+import Brightness7Icon from '@mui/icons-material/Brightness7'
+import { useThemeContext } from '../context/ThemeContext'
 
 function ThemeToggle() {
-    const { colorMode, toggleColorMode } = useColorMode()
-
-    // Load saved theme on mount
-    useEffect(() => {
-        const savedTheme = storageService.getTheme()
-        if (savedTheme !== colorMode) {
-            toggleColorMode()
-        }
-    }, [])
-
-    const handleToggle = () => {
-        const newTheme = colorMode === 'light' ? 'dark' : 'light'
-        storageService.setTheme(newTheme as 'light' | 'dark')
-        toggleColorMode()
-    }
+    const { themeMode, toggleTheme } = useThemeContext()
 
     return (
         <IconButton
-            aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
-            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            onClick={handleToggle}
-            variant="ghost"
-        />
+            onClick={toggleTheme}
+            aria-label={`Mudar para modo ${themeMode === 'light' ? 'escuro' : 'claro'}`}
+            color="inherit"
+        >
+            {themeMode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
+        </IconButton>
     )
 }
 
