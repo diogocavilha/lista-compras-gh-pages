@@ -6,6 +6,8 @@ export interface ListItem {
     completed: boolean;
     completedAt: string | null;  // ISO 8601 timestamp or null
     createdAt: string;  // ISO 8601 timestamp
+    deleted: boolean;
+    deletedAt: string | null;  // ISO 8601 timestamp or null
 }
 
 export interface ShoppingList {

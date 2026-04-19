@@ -87,6 +87,8 @@ function App() {
             completed: false,
             completedAt: null,
             createdAt: new Date().toISOString(),
+            deleted: false,
+            deletedAt: null,
         }
         const updatedList = { ...activeList, items: [...activeList.items, newItem] }
         setActiveList(updatedList)
@@ -101,8 +103,9 @@ function App() {
                 : item
         )
         const updatedList = { ...activeList, items: updatedItems }
-        const allCompleted = updatedItems.every(item => item.completed)
-        if (allCompleted && updatedItems.length > 0) {
+        const nonDeleted = updatedItems.filter(i => !(i.deleted ?? false))
+        const allCompleted = nonDeleted.length > 0 && nonDeleted.every(i => i.completed)
+        if (allCompleted) {
             archiveCompletedList(updatedList)
         } else {
             setActiveList(updatedList)
@@ -133,10 +136,26 @@ function App() {
 
     const handleDeleteItem = (itemId: string) => {
         if (!activeList) return
-        const updatedList = { ...activeList, items: activeList.items.filter(item => item.id !== itemId) }
+        const updatedItems = activeList.items.map(item =>
+            item.id === itemId
+                ? { ...item, deleted: true, deletedAt: new Date().toISOString() }
+                : item
+        )
+        const updatedList = { ...activeList, items: updatedItems }
         setActiveList(updatedList)
         storageService.setActiveList(updatedList)
         showSnackbar('Item removido', 'info')
+    }
+
+    const handleReorderItems = (fromIndex: number, toIndex: number) => {
+        if (!activeList) return
+        const activeItems = activeList.items.filter(i => !(i.deleted ?? false))
+        const deletedItems = activeList.items.filter(i => i.deleted ?? false)
+        const [moved] = activeItems.splice(fromIndex, 1)
+        activeItems.splice(toIndex, 0, moved)
+        const updatedList = { ...activeList, items: [...activeItems, ...deletedItems] }
+        setActiveList(updatedList)
+        storageService.setActiveList(updatedList)
     }
 
     return (
@@ -154,6 +173,7 @@ function App() {
                         onAddItem={handleAddItem}
                         onToggleItem={handleToggleItem}
                         onDeleteItem={handleDeleteItem}
+                        onReorderItems={handleReorderItems}
                         onCreateNewList={handleCreateNewList}
                         showSnackbar={showSnackbar}
                     />

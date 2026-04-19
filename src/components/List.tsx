@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -7,34 +7,34 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Fab from '@mui/material/Fab'
-import MuiList from '@mui/material/List'
-import MuiListItem from '@mui/material/ListItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
 import { ListItem as ListItemType, ShoppingList } from '../types/index'
 import { formatListDate } from '../services/analyticsService'
 import ListItem from './ListItem'
-
-interface DragState {
-    draggingItemId: string | null
-    isOverTrash: boolean
-}
 
 interface ListProps {
     list: ShoppingList | null
     onAddItem: (title: string) => void
     onToggleItem: (itemId: string) => void
     onDeleteItem: (itemId: string) => void
+    onReorderItems: (from: number, to: number) => void
     onCreateNewList: () => void
     showSnackbar: (message: string, severity?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function List({ list, onAddItem, onToggleItem, onDeleteItem, onCreateNewList, showSnackbar }: ListProps) {
+function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onCreateNewList, showSnackbar }: ListProps) {
     const [addItemOpen, setAddItemOpen] = useState(false)
     const [inputValue, setInputValue] = useState('')
-    const [dragState, setDragState] = useState<DragState>({ draggingItemId: null, isOverTrash: false })
+
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+    const dragRef = useRef<{
+        dragIndex: number | null
+        hoverIndex: number | null
+        startY: number
+        originalRects: DOMRect[]
+    }>({ dragIndex: null, hoverIndex: null, startY: 0, originalRects: [] })
 
     const handleAddItem = () => {
         const trimmed = inputValue.trim()
@@ -63,22 +63,82 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onCreateNewList, sh
         }
     }
 
-    const handleDragStart = (itemId: string) => {
-        setDragState({ draggingItemId: itemId, isOverTrash: false })
-    }
+    const handleDragStart = (index: number, clientY: number) => {
+        const activeEls = itemRefs.current.filter(Boolean)
+        const rects = itemRefs.current.map(el => el ? el.getBoundingClientRect() : new DOMRect())
+        dragRef.current = { dragIndex: index, hoverIndex: index, startY: clientY, originalRects: rects }
 
-    const handleDragEnd = (isOverTrash: boolean) => {
-        if (isOverTrash && dragState.draggingItemId) {
-            const itemId = dragState.draggingItemId
-            setDragState({ draggingItemId: null, isOverTrash: false })
-            onDeleteItem(itemId)
-        } else {
-            setDragState({ draggingItemId: null, isOverTrash: false })
+        const draggedEl = itemRefs.current[index]
+        if (draggedEl) {
+            draggedEl.style.transition = 'none'
+            draggedEl.style.zIndex = '100'
+            draggedEl.style.position = 'relative'
+            draggedEl.style.opacity = '0.85'
         }
-    }
+        activeEls.forEach((el, i) => {
+            if (el && i !== index) el.style.transition = 'transform 0.15s ease'
+        })
 
-    const handleTrashEnter = () => setDragState(prev => ({ ...prev, isOverTrash: true }))
-    const handleTrashLeave = () => setDragState(prev => ({ ...prev, isOverTrash: false }))
+        const onMove = (e: TouchEvent | MouseEvent) => {
+            e.preventDefault()
+            const clientYNow = 'touches' in e ? e.touches[0].clientY : e.clientY
+            const { dragIndex, startY, originalRects } = dragRef.current
+            if (dragIndex === null) return
+
+            const deltaY = clientYNow - startY
+            const el = itemRefs.current[dragIndex]
+            if (!el) return
+            el.style.transform = `translateY(${deltaY}px)`
+
+            const draggedRect = originalRects[dragIndex]
+            const draggedCenterY = draggedRect.top + draggedRect.height / 2 + deltaY
+            const cardHeight = draggedRect.height
+
+            let newHoverIndex = dragIndex
+            for (let i = 0; i < itemRefs.current.length; i++) {
+                if (i === dragIndex) continue
+                const cardEl = itemRefs.current[i]
+                if (!cardEl || !originalRects[i]) continue
+                const cardCenterY = originalRects[i].top + originalRects[i].height / 2
+                if (i < dragIndex && draggedCenterY < cardCenterY) {
+                    cardEl.style.transform = `translateY(${cardHeight}px)`
+                    newHoverIndex = Math.min(newHoverIndex, i)
+                } else if (i > dragIndex && draggedCenterY > cardCenterY) {
+                    cardEl.style.transform = `translateY(-${cardHeight}px)`
+                    newHoverIndex = Math.max(newHoverIndex, i)
+                } else {
+                    cardEl.style.transform = ''
+                }
+            }
+            dragRef.current.hoverIndex = newHoverIndex
+        }
+
+        const onEnd = () => {
+            const { dragIndex, hoverIndex } = dragRef.current
+            itemRefs.current.forEach(el => {
+                if (el) {
+                    el.style.transform = ''
+                    el.style.transition = ''
+                    el.style.zIndex = ''
+                    el.style.position = ''
+                    el.style.opacity = ''
+                }
+            })
+            if (dragIndex !== null && hoverIndex !== null && hoverIndex !== dragIndex) {
+                onReorderItems(dragIndex, hoverIndex)
+            }
+            dragRef.current = { dragIndex: null, hoverIndex: null, startY: 0, originalRects: [] }
+            document.removeEventListener('touchmove', onMove)
+            document.removeEventListener('mousemove', onMove)
+            document.removeEventListener('touchend', onEnd)
+            document.removeEventListener('mouseup', onEnd)
+        }
+
+        document.addEventListener('touchmove', onMove, { passive: false })
+        document.addEventListener('mousemove', onMove)
+        document.addEventListener('touchend', onEnd)
+        document.addEventListener('mouseup', onEnd)
+    }
 
     if (!list) {
         return (
@@ -98,8 +158,9 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onCreateNewList, sh
         )
     }
 
-    const completedCount = list.items.filter(item => item.completed).length
-    const isDragging = dragState.draggingItemId !== null
+    const activeItems = list.items.filter(i => !(i.deleted ?? false))
+    const deletedItems = list.items.filter(i => i.deleted ?? false)
+    const completedCount = activeItems.filter(item => item.completed).length
 
     return (
         <Container maxWidth="sm" sx={{ pt: 2, pb: 2 }}>
@@ -107,71 +168,56 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onCreateNewList, sh
             <Box sx={{ mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Lista de compras</Typography>
                 <Typography variant="caption" color="text.secondary">
-                    Criada: {formatListDate(list.createdAt)} · {list.items.length} itens, {completedCount} concluídos
+                    Criada: {formatListDate(list.createdAt)} · {activeItems.length} itens, {completedCount} concluídos
                 </Typography>
             </Box>
 
-            {/* Items */}
-            {list.items.length === 0 ? (
-                <Box sx={{ py: 6, textAlign: 'center' }}>
+            {/* Active items */}
+            {activeItems.length === 0 ? (
+                <Box sx={{ py: 4, textAlign: 'center' }}>
                     <Typography color="text.secondary">
                         Nenhum item ainda. Toque no botão + para adicionar!
                     </Typography>
                 </Box>
             ) : (
-                <MuiList disablePadding sx={{ border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
-                    {[...list.items].reverse().map((item: ListItemType, index: number) => (
-                        <MuiListItem
+                <Box>
+                    {activeItems.map((item: ListItemType, index: number) => (
+                        <Box
                             key={item.id}
-                            disablePadding
-                            sx={{
-                                borderBottom: index < list.items.length - 1 ? 1 : 0,
-                                borderColor: 'divider',
-                                bgcolor: item.completed ? 'action.hover' : 'background.paper',
-                            }}
+                            ref={(el: HTMLDivElement | null) => { itemRefs.current[index] = el }}
                         >
                             <ListItem
                                 item={item}
+                                index={index}
                                 onToggleItem={onToggleItem}
                                 onDeleteItem={onDeleteItem}
                                 onDragStart={handleDragStart}
-                                onDragEnd={handleDragEnd}
-                                onTrashEnter={handleTrashEnter}
-                                onTrashLeave={handleTrashLeave}
-                                trashVisible={isDragging}
                             />
-                        </MuiListItem>
+                        </Box>
                     ))}
-                </MuiList>
+                </Box>
             )}
 
-            {/* Floating trash zone — appears when dragging */}
-            <Box
-                sx={{
-                    position: 'fixed',
-                    bottom: 72,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 1300,
-                    opacity: isDragging ? 1 : 0,
-                    pointerEvents: isDragging ? 'auto' : 'none',
-                    transition: 'opacity 0.2s ease',
-                }}
-            >
-                <Fab
-                    data-trash-zone=""
-                    color={dragState.isOverTrash ? 'error' : 'default'}
-                    size="large"
-                    sx={{ transition: 'background-color 0.15s ease' }}
-                    onTouchStart={handleTrashEnter}
-                    onTouchEnd={() => handleDragEnd(true)}
-                    onMouseEnter={handleTrashEnter}
-                    onMouseLeave={handleTrashLeave}
-                    onMouseUp={() => handleDragEnd(true)}
-                >
-                    <DeleteIcon />
-                </Fab>
-            </Box>
+            {/* Deleted items section */}
+            {deletedItems.length > 0 && (
+                <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                        Excluídos
+                    </Typography>
+                    {deletedItems.map((item: ListItemType) => (
+                        <Box key={item.id} sx={{ bgcolor: 'error.light', borderRadius: 2, mb: 1 }}>
+                            <ListItem
+                                item={item}
+                                index={-1}
+                                swipeable={false}
+                                onToggleItem={onToggleItem}
+                                onDeleteItem={onDeleteItem}
+                                onDragStart={() => {}}
+                            />
+                        </Box>
+                    ))}
+                </Box>
+            )}
 
             {/* FAB — add item */}
             <Fab
