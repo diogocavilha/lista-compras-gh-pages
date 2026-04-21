@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-specs/008-trip-item-history/plan.md
+specs/009-android-apk/plan.md
 <!-- SPECKIT END -->
 
 ## Active Technologies
