@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Green background with rounded corners -->
+  <rect width="1024" height="1024" rx="180" fill="#4CAF50"/>
+  <!-- Shopping cart body -->
+  <path fill="white" d="
+    M 180 220
+    L 280 220
+    L 380 620
+    L 740 620
+    L 840 340
+    L 340 340
+    L 310 220
+    Z
+  "/>
+  <!-- Left wheel -->
+  <circle cx="420" cy="710" r="65" fill="white"/>
+  <circle cx="420" cy="710" r="30" fill="#4CAF50"/>
+  <!-- Right wheel -->
+  <circle cx="700" cy="710" r="65" fill="white"/>
+  <circle cx="700" cy="710" r="30" fill="#4CAF50"/>
+</svg>

@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash .specify/extensions/git/scripts/bash/create-new-feature.sh --json --short-name \"android-apk\" \"Transforme essa aplicação em nativa para Android. No final quero um apk, para que seja possível instalar e utilizar em um Android.\")",
+      "Bash(convert -background none /home/diogo/git/lista-compras-gh-pages/assets/icon/icon.svg -resize 1024x1024 /home/diogo/git/lista-compras-gh-pages/assets/icon/icon.png)",
+      "Bash(identify /home/diogo/git/lista-compras-gh-pages/assets/icon/icon.png)",
+      "Bash(npx cap *)",
+      "Bash(npx capacitor-assets *)",
+      "Bash(./gradlew assembleDebug)",
+      "Read(//usr/lib/**)",
+      "Bash(java -version)",
+      "Bash(update-alternatives --list java)",
+      "Read(//tmp/claude-1000/**)",
+      "Bash(xargs cat *)",
+      "Bash(xargs ls *)",
+      "Bash(docker --version)",
+      "Bash(docker info *)",
+      "Bash(chmod +x /home/diogo/git/lista-compras-gh-pages/scripts/build-apk-docker.sh)",
+      "Bash(docker build *)",
+      "Bash(docker run *)"
+    ],
+    "additionalDirectories": [
+      "/home/diogo/git/lista-compras-gh-pages/specs/009-android-apk"
+    ]
+  }
+}
