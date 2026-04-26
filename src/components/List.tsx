@@ -21,12 +21,16 @@ interface ListProps {
     onDeleteItem: (itemId: string) => void
     onReorderItems: (from: number, to: number) => void
     onCreateNewList: () => void
+    onEditItem: (itemId: string, newTitle: string) => void
     showSnackbar: (message: string, severity?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onCreateNewList, showSnackbar }: ListProps) {
+function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onCreateNewList, onEditItem, showSnackbar }: ListProps) {
     const [addItemOpen, setAddItemOpen] = useState(false)
     const [inputValue, setInputValue] = useState('')
+    const [editItemOpen, setEditItemOpen] = useState(false)
+    const [editItemId, setEditItemId] = useState<string | null>(null)
+    const [editInputValue, setEditInputValue] = useState('')
 
     const itemRefs = useRef<(HTMLDivElement | null)[]>([])
     const dragRef = useRef<{
@@ -61,6 +65,51 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onC
             e.preventDefault()
             handleAddItem()
         }
+    }
+
+    const handleEditItem = (itemId: string) => {
+        const item = list?.items.find(i => i.id === itemId)
+        if (item) {
+            setEditItemId(itemId)
+            setEditInputValue(item.title)
+            setEditItemOpen(true)
+        }
+    }
+
+    const handleSaveEdit = () => {
+        const trimmed = editInputValue.trim()
+        if (!trimmed) {
+            showSnackbar('Por favor, insira um nome do produto', 'error')
+            return
+        }
+        if (trimmed.length > 200) {
+            showSnackbar('Nome do produto muito longo (máximo 200 caracteres)', 'error')
+            return
+        }
+        if (list?.items.some(item => item.id !== editItemId && item.title.toLowerCase() === trimmed.toLowerCase())) {
+            showSnackbar('Este item já está em sua lista', 'error')
+            return
+        }
+        if (editItemId) {
+            onEditItem(editItemId, trimmed)
+        }
+        setEditInputValue('')
+        setEditItemId(null)
+        setEditItemOpen(false)
+        showSnackbar('Item atualizado')
+    }
+
+    const handleEditDialogKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            handleSaveEdit()
+        }
+    }
+
+    const handleEditDialogClose = () => {
+        setEditItemOpen(false)
+        setEditInputValue('')
+        setEditItemId(null)
     }
 
     const handleDragStart = (index: number, clientY: number) => {
@@ -192,6 +241,7 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onC
                                 onToggleItem={onToggleItem}
                                 onDeleteItem={onDeleteItem}
                                 onDragStart={handleDragStart}
+                                onEditItem={handleEditItem}
                             />
                         </Box>
                     ))}
@@ -213,6 +263,7 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onC
                                 onToggleItem={onToggleItem}
                                 onDeleteItem={onDeleteItem}
                                 onDragStart={() => {}}
+                                onEditItem={handleEditItem}
                             />
                         </Box>
                     ))}
@@ -253,6 +304,32 @@ function List({ list, onAddItem, onToggleItem, onDeleteItem, onReorderItems, onC
                 <DialogActions>
                     <Button onClick={() => { setAddItemOpen(false); setInputValue('') }}>Cancelar</Button>
                     <Button onClick={handleAddItem} variant="contained">Adicionar</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Edit item dialog */}
+            <Dialog
+                open={editItemOpen}
+                onClose={handleEditDialogClose}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle>Editar item</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        label="Nome do produto"
+                        value={editInputValue}
+                        onChange={e => setEditInputValue(e.target.value)}
+                        onKeyDown={handleEditDialogKeyDown}
+                        slotProps={{ htmlInput: { maxLength: 200 } }}
+                        sx={{ mt: 1 }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditDialogClose}>Cancelar</Button>
+                    <Button onClick={handleSaveEdit} variant="contained">Salvar</Button>
                 </DialogActions>
             </Dialog>
         </Container>
