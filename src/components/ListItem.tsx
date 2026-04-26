@@ -23,9 +23,10 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
     const gestureRef = useRef<{
         startX: number
         startY: number
+        startTime: number
         axis: 'horizontal' | 'vertical' | null
         active: boolean
-    }>({ startX: 0, startY: 0, axis: null, active: false })
+    }>({ startX: 0, startY: 0, startTime: 0, axis: null, active: false })
 
     const removeListeners = (onMove: EventListener, onUp: EventListener) => {
         document.removeEventListener('touchmove', onMove)
@@ -36,7 +37,7 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
 
     const handlePointerDown = (startX: number, startY: number) => {
         if (!swipeable) return
-        gestureRef.current = { startX, startY, axis: null, active: true }
+        gestureRef.current = { startX, startY, startTime: Date.now(), axis: null, active: true }
 
         const onMove = (e: Event) => {
             const te = e as TouchEvent | MouseEvent
@@ -73,17 +74,17 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
 
         const onUp = (e: Event) => {
             const te = e as TouchEvent | MouseEvent
-            if (!gestureRef.current.active || gestureRef.current.axis !== 'horizontal') {
+            const touchDuration = Date.now() - gestureRef.current.startTime
+            if (!gestureRef.current.active) {
                 gestureRef.current.active = false
                 removeListeners(onMove, onUp)
-                if (gestureRef.current.axis === null && onEditItem) {
-                    const clientX = 'changedTouches' in te ? te.changedTouches[0].clientX : te.clientX
-                    const clientY = 'changedTouches' in te ? te.changedTouches[0].clientY : te.clientY
-                    const dx = clientX - gestureRef.current.startX
-                    const dy = clientY - gestureRef.current.startY
-                    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
-                        onEditItem(item.id)
-                    }
+                return
+            }
+            if (gestureRef.current.axis !== 'horizontal') {
+                gestureRef.current.active = false
+                removeListeners(onMove, onUp)
+                if (touchDuration < 200 && onEditItem) {
+                    onEditItem(item.id)
                 }
                 return
             }
