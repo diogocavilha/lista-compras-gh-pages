@@ -151,7 +151,6 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
                             variant="body1"
                             sx={{
                                 flex: 1,
-                                textDecoration: item.completed ? 'line-through' : 'none',
                                 opacity: item.completed ? 0.8 : 1,
                                 wordBreak: 'break-word',
                             }}
