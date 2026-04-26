@@ -13,10 +13,11 @@ interface ListItemProps {
     onToggleItem: (itemId: string) => void
     onDeleteItem: (itemId: string) => void
     onDragStart: (index: number, clientY: number) => void
+    onEditItem?: (itemId: string) => void
     swipeable?: boolean
 }
 
-function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, swipeable = true }: ListItemProps) {
+function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEditItem, swipeable = true }: ListItemProps) {
     const cardRef = useRef<HTMLDivElement>(null)
     const bgRef = useRef<HTMLDivElement>(null)
     const gestureRef = useRef<{
@@ -75,6 +76,15 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, swipea
             if (!gestureRef.current.active || gestureRef.current.axis !== 'horizontal') {
                 gestureRef.current.active = false
                 removeListeners(onMove, onUp)
+                if (gestureRef.current.axis === null && onEditItem) {
+                    const clientX = 'changedTouches' in te ? te.changedTouches[0].clientX : te.clientX
+                    const clientY = 'changedTouches' in te ? te.changedTouches[0].clientY : te.clientY
+                    const dx = clientX - gestureRef.current.startX
+                    const dy = clientY - gestureRef.current.startY
+                    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+                        onEditItem(item.id)
+                    }
+                }
                 return
             }
             const clientX = 'changedTouches' in te ? te.changedTouches[0].clientX : te.clientX

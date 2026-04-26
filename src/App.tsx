@@ -163,6 +163,18 @@ function App() {
         storageService.setActiveList(updatedList)
     }
 
+    const handleEditItem = (itemId: string, newTitle: string) => {
+        if (!activeList) return
+        const updatedItems = activeList.items.map(item =>
+            item.id === itemId
+                ? { ...item, title: newTitle }
+                : item
+        )
+        const updatedList = { ...activeList, items: updatedItems }
+        setActiveList(updatedList)
+        storageService.setActiveList(updatedList)
+    }
+
     return (
         <Box sx={{ height: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
             {/* Top bar with theme toggle */}
@@ -180,6 +192,7 @@ function App() {
                         onDeleteItem={handleDeleteItem}
                         onReorderItems={handleReorderItems}
                         onCreateNewList={handleCreateNewList}
+                        onEditItem={handleEditItem}
                         showSnackbar={showSnackbar}
                     />
                 )}
