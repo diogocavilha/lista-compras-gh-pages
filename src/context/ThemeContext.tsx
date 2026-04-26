@@ -15,7 +15,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     )
 
     const theme = useMemo(
-        () => createTheme({ palette: { mode: themeMode } }),
+        () => createTheme({
+            palette: {
+                mode: themeMode,
+                ...(themeMode === 'light' ? {
+                    background: {
+                        default: '#f5f5f5',
+                        paper: '#e8e8e8',
+                    },
+                } : {
+                    background: {
+                        default: '#121212',
+                        paper: '#1e1e1e',
+                    },
+                }),
+            },
+        }),
         [themeMode]
     )
 
