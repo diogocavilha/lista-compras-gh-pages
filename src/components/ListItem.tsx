@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import CheckIcon from '@mui/icons-material/Check'
+import { useTheme } from '@mui/material/styles'
 import { ListItem as ListItemType } from '../types/index'
 
 interface ListItemProps {
@@ -18,6 +19,7 @@ interface ListItemProps {
 }
 
 function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEditItem, swipeable = true }: ListItemProps) {
+    const theme = useTheme()
     const cardRef = useRef<HTMLDivElement>(null)
     const bgRef = useRef<HTMLDivElement>(null)
     const gestureRef = useRef<{
@@ -138,7 +140,7 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
                 elevation={1}
                 sx={{
                     borderRadius: 2,
-                    bgcolor: item.deleted ? 'error.main' : item.completed ? 'success.main' : 'background.paper',
+                    bgcolor: item.deleted ? 'error.main' : item.completed ? 'success.main' : theme.palette.background.paper,
                     userSelect: 'none',
                     touchAction: swipeable ? 'pan-y' : 'auto',
                 }}
