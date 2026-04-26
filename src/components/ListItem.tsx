@@ -85,7 +85,7 @@ function ListItem({ item, index, onToggleItem, onDeleteItem, onDragStart, onEdit
             if (gestureRef.current.axis !== 'horizontal') {
                 gestureRef.current.active = false
                 removeListeners(onMove, onUp)
-                if (touchDuration < 200 && onEditItem) {
+                if (touchDuration >= 1000 && onEditItem) {
                     onEditItem(item.id)
                 }
                 return
